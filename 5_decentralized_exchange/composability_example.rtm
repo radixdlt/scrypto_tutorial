@@ -1,0 +1,16 @@
+# Take 25 XRD from the account
+CALL_METHOD Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "withdraw" Decimal("25") Address("030000000000000000000000000000000000000000000000000004") BucketRef(1u32);
+
+# Buy a gumball from the GumballMachine component
+TAKE_FROM_WORKTOP Decimal("25") Address("030000000000000000000000000000000000000000000000000004") Bucket("xrd_payment");
+CALL_METHOD Address("0239e3954c002dbc7e0157e30af6212c88ad41c8d2886240e98e76") "buy_gumball" Bucket("xrd_payment");
+
+# Swap the gumball to BTC using the RadiSwap component
+TAKE_FROM_WORKTOP Decimal("1") Address("0347dfe3a58e8a630305f2f3df82949cd70ce49e2cde097b259f8d") Bucket("gumball");
+CALL_METHOD Address("024f303486f193254b51c6350bfc130a1d8b936da3155a268f145f") "swap" Bucket("gumball");
+
+# Make sure we get more than 10 BTC
+ASSERT_WORKTOP_CONTAINS Decimal("10") Address("03ff3eae9463d913a0dba37b78896414eadf59ce144a9143c8018f");
+
+# Deposit all resources back into the account
+CALL_METHOD_WITH_ALL_RESOURCES Address("0293c502780e23621475989d707cd8128e4506362e5fed6ac0c00a") "deposit_batch";
