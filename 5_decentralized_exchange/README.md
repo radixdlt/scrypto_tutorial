@@ -21,7 +21,7 @@ source var.sh
 1. Build and deploy the blueprint on the local ledger: `resim publish .`
 1. Instantiate a component with the following parameters:
     * A bucket of 100 000 XRD
-    * A bucket to 1 000 000 DGC
+    * A bucket to 1 000 000 BTC
     * 100 for the initial supply of the LP tokens
     * 0.01 (1%) for the trading fees
 
