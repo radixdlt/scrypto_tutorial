@@ -1,5 +1,5 @@
 # Hello World
-In this example, you will learn the very basic of building smart contracts on Radix using Scrypto. You will learn the structure of a Scrypto blueprint, how to create a new token and how write methods so that people are able to interact with your component.
+In this example, you will learn the very basic of building blueprints (smart contracts) on Radix using Scrypto. You will learn the structure of a Scrypto blueprint, how to create a new token and how write methods so that people are able to interact with your component.
 
 ## Environment variables
 Throughout the following steps, addresses will be generated for the account, components and tokens that are created. For simplicity, we included a script that you can run to store those addresses inside environment variables to be able to refer to them easily. To get access to those variables, run the following command:

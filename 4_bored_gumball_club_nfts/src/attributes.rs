@@ -24,7 +24,7 @@ pub enum Eyes {
     Eyepatch
 }
 
-// Functions allowing us to convert a integer to an attribute
+// Functions allowing us to convert an integer to an attribute
 impl Color {
     pub fn from(value: u32) -> Color {
         match value {

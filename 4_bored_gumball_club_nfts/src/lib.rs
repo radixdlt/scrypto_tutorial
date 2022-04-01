@@ -41,7 +41,7 @@ blueprint! {
                 .initial_supply_fungible(1);
 
             // Create a minting authority badge, that will be kept
-            // inside this component to be able to mint NFTs later
+            // inside the component to be able to mint NFTs later
             let minting_authority: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
                 .metadata("name", "NFT minter authority")
                 .metadata("description", "Badge that has the authority to mint new gumball NFTs")
