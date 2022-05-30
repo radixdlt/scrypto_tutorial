@@ -3,7 +3,7 @@ use scrypto::prelude::*;
 blueprint! {
     struct Radiswap {
         /// The resource definition of LP token.
-        lp_resource_def: ResourceDef,
+        lp_resource_def: ResourceAddress,
         /// LP tokens mint badge.
         lp_mint_badge: Vault,
         /// The reserve for token A.
@@ -22,33 +22,34 @@ blueprint! {
             b_tokens: Bucket,
             lp_initial_supply: Decimal,
             fee: Decimal,
-        ) -> (Component, Bucket) {
+        ) -> (ComponentAddress, Bucket) {
             // Check arguments
             assert!(
                 !a_tokens.is_empty() && !b_tokens.is_empty(),
                 "You must pass in an initial supply of each token"
             );
             assert!(
-                fee >= 0.into() && fee <= 1.into(),
+                fee >= Decimal::zero() && fee <= Decimal::one(),
                 "Invalid fee in thousandths"
             );
 
             // Instantiate our LP token and mint an initial supply of them
-            let lp_mint_badge = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+            let lp_mint_badge = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "LP Token Mint Auth")
-                .initial_supply_fungible(1);
-            let mut lp_resource_def = ResourceBuilder::new_fungible(DIVISIBILITY_MAXIMUM)
+                .initial_supply(1);
+
+            let lp_tokens = ResourceBuilder::new_fungible()
                 .metadata("symbol", "LP")
                 .metadata("name", "Exchange LP token")
                 .metadata("url", "https://radiswap.com")
-                .flags(MINTABLE | BURNABLE)
-                .badge(lp_mint_badge.resource_def(), MAY_MINT | MAY_BURN)
-                .no_initial_supply();
-            let lp_tokens = lp_resource_def.mint(lp_initial_supply, lp_mint_badge.present());
+                .mintable(rule!(require(lp_mint_badge.resource_address())), LOCKED)
+                .burnable(rule!(require(lp_mint_badge.resource_address())), LOCKED)
+                .initial_supply(lp_initial_supply);
 
             // Instantiate our Radiswap component
             let radiswap = Self {
-                lp_resource_def,
+                lp_resource_def: lp_tokens.resource_address(),
                 lp_mint_badge: Vault::with_bucket(lp_mint_badge),
                 a_pool: Vault::with_bucket(a_tokens),
                 b_pool: Vault::with_bucket(b_tokens),
@@ -57,7 +58,7 @@ blueprint! {
             .instantiate();
 
             // Return the new Radiswap component, as well as the initial supply of LP tokens
-            (radiswap, lp_tokens)
+            (radiswap.globalize(), lp_tokens)
         }
 
         /// Adds liquidity to this pool and return the LP tokens representing pool shares
@@ -81,12 +82,12 @@ blueprint! {
                 (b_ratio, a_tokens)
             };
             
-            let supply_to_mint = self.lp_resource_def.total_supply() * actual_ratio;
+            let lp_resource_manager = borrow_resource_manager!(self.lp_resource_def);
+            let supply_to_mint = lp_resource_manager.total_supply() * actual_ratio;
 
             // Mint LP tokens according to the share the provider is contributing
-            let lp_tokens = self
-                .lp_mint_badge
-                .authorize(|auth| self.lp_resource_def.mint(supply_to_mint, auth));
+            let lp_tokens = self.lp_mint_badge
+                .authorize(|| lp_resource_manager.mint(supply_to_mint));
 
             // Return the LP tokens along with any remainder
             (lp_tokens, remainder)
@@ -95,20 +96,20 @@ blueprint! {
         /// Removes liquidity from this pool.
         pub fn remove_liquidity(&mut self, lp_tokens: Bucket) -> (Bucket, Bucket) {
             assert!(
-                self.lp_resource_def == lp_tokens.resource_def(),
+                self.lp_resource_def == lp_tokens.resource_address(),
                 "Wrong token type passed in"
             );
 
             // Calculate the share based on the input LP tokens.
-            let share = lp_tokens.amount() / self.lp_resource_def.total_supply();
+            let share = lp_tokens.amount() / borrow_resource_manager!(self.lp_resource_def).total_supply();
 
             // Withdraw the correct amounts of tokens A and B from reserves
             let a_withdrawn = self.a_pool.take(self.a_pool.amount() * share);
             let b_withdrawn = self.b_pool.take(self.b_pool.amount() * share);
 
             // Burn the LP tokens received
-            self.lp_mint_badge.authorize(|auth| {
-                lp_tokens.burn_with_auth(auth);
+            self.lp_mint_badge.authorize(|| {
+                lp_tokens.burn();
             });
 
             // Return the withdrawn tokens
@@ -121,7 +122,10 @@ blueprint! {
             let fee_amount = input_tokens.amount() * self.fee;
             let input_amount = input_tokens.amount();
 
-            if input_tokens.resource_def() == self.a_pool.resource_def() {
+            let token_a_manager = borrow_resource_manager!(self.a_pool.resource_address());
+            let token_b_manager = borrow_resource_manager!(self.b_pool.resource_address());
+
+            if input_tokens.resource_address() == self.a_pool.resource_address() {
                 // Calculate how much of token B we will return
                 let b_amount = self.b_pool.amount()
                     - self.a_pool.amount() * self.b_pool.amount()
@@ -132,9 +136,9 @@ blueprint! {
 
                 info!("Exchanging {} {} for {} {}", 
                     input_amount, 
-                    self.a_pool.resource_def().metadata().get("symbol").unwrap(), 
+                    token_a_manager.metadata().get("symbol").unwrap(), 
                     b_amount, 
-                    self.b_pool.resource_def().metadata().get("symbol").unwrap());
+                    token_b_manager.metadata().get("symbol").unwrap());
 
                 // Return the tokens owed
                 return self.b_pool.take(b_amount);
@@ -149,9 +153,9 @@ blueprint! {
 
                 info!("Exchanging {} {} for {} {}", 
                     input_amount, 
-                    self.b_pool.resource_def().metadata().get("symbol").unwrap(), 
+                    token_b_manager.metadata().get("symbol").unwrap(), 
                     a_amount, 
-                    self.a_pool.resource_def().metadata().get("symbol").unwrap());
+                    token_a_manager.metadata().get("symbol").unwrap());
 
                 // Return the tokens owed
                 return self.a_pool.take(a_amount);

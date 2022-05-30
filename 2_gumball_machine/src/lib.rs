@@ -11,12 +11,13 @@ blueprint! {
     }
 
     impl GumballMachine {
-        pub fn instantiate_machine(price: Decimal) -> Component {
+        pub fn instantiate_machine(price: Decimal) -> ComponentAddress {
             // Create a new gumball resource
-            let gumballs: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+            let gumballs: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Gumball")
                 .metadata("symbol", "GUM")
-                .initial_supply_fungible(300);
+                .initial_supply(300);
 
             // Instantiate a new component and return it
             Self {
@@ -24,7 +25,7 @@ blueprint! {
                 collected_xrd: Vault::new(RADIX_TOKEN),
                 price: price
             }
-            .instantiate()
+            .instantiate().globalize()
         }
 
         // Allow users to buy a gumball by providing enough XRD.

@@ -1,8 +1,8 @@
 # Gumball Machine
 This example will show you how to parameterize the instantiated components by adding arguments to the instantiator function and how to accept payments in your components.
 
-## Environment variables
-Throughout the following steps, addresses will be generated for the account, components and tokens that are created. For simplicity, we included a script that you can run to store those addresses inside environment variables to be able to refer to them easily. To get access to those variables, run the following command:
+## Before running this code
+Throughout the following steps, addresses will be generated for the account, components and tokens that are created. For simplicity, we included a script that you can run to store those addresses inside environment variables to be able to refer to them easily with the `resim` command or inside transaction manifests. Start by running the following command:
 
 ### Linux, Mac
 ```bash

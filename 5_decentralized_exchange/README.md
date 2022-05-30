@@ -1,8 +1,8 @@
 # Decentralized Exchange
 In this example, we will mix everything we just learned to make a more concrete blueprint. This blueprint represents an automated marked maker (AMM) based decentralized exchange. People are able to provide and withdraw liquidity, and swap tokens.
 
-## Environment variables
-Throughout the following steps, addresses will be generated for the account, components and tokens that are created. For simplicity, we included a script that you can run to store those addresses inside environment variables to be able to refer to them easily. To get access to those variables, run the following command:
+## Before running this code
+Throughout the following steps, addresses will be generated for the account, components and tokens that are created. For simplicity, we included a script that you can run to store those addresses inside environment variables to be able to refer to them easily with the `resim` command or inside transaction manifests. Start by running the following command:
 
 ### Linux, Mac
 ```bash

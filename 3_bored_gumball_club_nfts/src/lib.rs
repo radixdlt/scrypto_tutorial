@@ -17,7 +17,7 @@ blueprint! {
         // Vault that will store the minted NFTs
         gumball_nfts: Vault,
         // Resource definition of the NFT
-        gumball_nft_def: ResourceDef,
+        gumball_nft_def: ResourceAddress,
         // Vault to contain the collected XRD
         collected_xrd: Vault,
         // The price the user has to pay for a random NFT
@@ -25,73 +25,76 @@ blueprint! {
         // The price the user has to pay for a specific NFT
         price_specific: Decimal,
         // Resource definition of the admin badge, able to call the `mint_nft` method
-        admin_badge: ResourceDef,
+        admin_badge: ResourceAddress,
         // Vault containing the badge allowing this component to mint
         // new NFT resources
         minting_authority: Vault,
         // Keep track of the number of NFT minted
-        nb_nft_minted: u128
+        nb_nft_minted: u64
     }
 
     impl BoredGumballClub {
-        pub fn instantiate_club(price_random: Decimal, price_specific: Decimal) -> (Component, Bucket) {
+        pub fn instantiate_club(price_random: Decimal, price_specific: Decimal) -> (ComponentAddress, Bucket) {
             // Create an admin badge that will be returned to the caller
-            let admin_badge: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+            let admin_badge: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Club admin badge")
-                .initial_supply_fungible(1);
+                .initial_supply(1);
 
             // Create a minting authority badge, that will be kept
             // inside the component to be able to mint NFTs later
-            let minting_authority: Bucket = ResourceBuilder::new_fungible(DIVISIBILITY_NONE)
+            let minting_authority: Bucket = ResourceBuilder::new_fungible()
+                .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "NFT minter authority")
                 .metadata("description", "Badge that has the authority to mint new gumball NFTs")
-                .initial_supply_fungible(1);
+                .initial_supply(1);
 
             // Initiate the resource definition of the NFTs.
             // We specify that the `minting_authority` badge, created in the previous step
             // will be able to mint this resource.
-            let gumball_def: ResourceDef = ResourceBuilder::new_non_fungible()
+            let gumball_address: ResourceAddress = ResourceBuilder::new_non_fungible()
                 .metadata("name", "Bored Gumball Club NFT")
-                .flags(MINTABLE)
-                .badge(minting_authority.resource_address(), MAY_MINT)
+                .mintable(rule!(require(minting_authority.resource_address())), LOCKED)
                 .no_initial_supply();
 
             // Instantiate the component
             let component = Self {
-                gumball_nfts: Vault::new(gumball_def.address()),
-                gumball_nft_def: gumball_def,
+                gumball_nfts: Vault::new(gumball_address),
+                gumball_nft_def: gumball_address,
                 collected_xrd: Vault::new(RADIX_TOKEN),
                 price_random: price_random,
                 price_specific: price_specific,
-                admin_badge: admin_badge.resource_def(),
+                admin_badge: admin_badge.resource_address(),
                 minting_authority: Vault::with_bucket(minting_authority),
                 nb_nft_minted: 0
             }
             .instantiate();
 
-            (component, admin_badge)
+            let access_rules = AccessRules::new()
+                .method("mint_nft", rule!(require(admin_badge.resource_address())))
+                .default(rule!(allow_all));
+
+            (component.add_access_check(access_rules).globalize(), admin_badge)
         }
 
         // Admins can call this method to mint new gumball
         // NFTs with specific attributes
-        #[auth(admin_badge)]
-        pub fn mint_nft(&mut self, color: u32, hat: u32, eyes: u32) {
+        pub fn mint_nft(&mut self, color: Color, hat: Hat, eyes: Eyes) {
             // The id of the minted NFT will be an increasing number, starting with 1
-            let nft_id = NonFungibleKey::from(self.nb_nft_minted + 1);
+            let nft_id = NonFungibleId::from_u64(self.nb_nft_minted + 1);
 
             // Initiate the data that the NFT will hold
             let nft_data: GumballNftData = GumballNftData{
-                color: Color::from(color),
-                hat: Hat::from(hat),
-                eyes: Eyes::from(eyes)
+                color,
+                hat,
+                eyes
             };
 
             // Mint a new NFT
-            let new_nft = self.minting_authority.authorize(|badge| {
-                return self.gumball_nft_def.mint_non_fungible(
+            let new_nft = self.minting_authority.authorize(|| {
+                return borrow_resource_manager!(self.gumball_nft_def).mint_non_fungible(
                     &nft_id,
-                    nft_data, 
-                    badge
+                    nft_data,
                 );
             });
 
@@ -109,10 +112,10 @@ blueprint! {
         }
 
         // Allow users to buy a specific NFT store on this component
-        pub fn buy_specific(&mut self, mut payment: Bucket, id: u128) -> (Bucket, Bucket) {
+        pub fn buy_specific(&mut self, mut payment: Bucket, id: u64) -> (Bucket, Bucket) {
             self.collected_xrd.put(payment.take(self.price_specific));
 
-            let nft = self.gumball_nfts.take_non_fungible(&NonFungibleKey::from(id));
+            let nft = self.gumball_nfts.take_non_fungible(&NonFungibleId::from_u64(id));
             (nft, payment)
         }
     }
