@@ -49,7 +49,7 @@ blueprint! {
                 .metadata("description", "Badge that has the authority to mint new gumball NFTs")
                 .initial_supply(1);
 
-            // Initiate the resource definition of the NFTs.
+            // Create the resource definition of the NFTs.
             // We specify that the `minting_authority` badge, created in the previous step
             // will be able to mint this resource.
             let gumball_address: ResourceAddress = ResourceBuilder::new_non_fungible()
@@ -70,6 +70,9 @@ blueprint! {
             }
             .instantiate();
 
+            // Set the access rules for this component.
+            // Only someone presenting the admin_badge will be able to call
+            // the "mint_nft" method.
             let access_rules = AccessRules::new()
                 .method("mint_nft", rule!(require(admin_badge.resource_address())))
                 .default(rule!(allow_all));
