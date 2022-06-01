@@ -9,12 +9,12 @@ Throughout the following steps, addresses will be generated for the account, com
 source var.sh
 ```
 
-### Windows (Command Prompt)
-```bash
-.\var.bat
+### Windows (PowerShell)
+```powershell
+. .\var.ps1
 ```
 
-## How to run (Linux, Mac)
+## How to run
 1. Reset your environment: `resim reset`
 1. Create a new account: `resim new-account`
 1. Build and deploy the blueprint on the local ledger: `resim publish .`
@@ -36,8 +36,3 @@ source var.sh
 1. Increase the current epoch to 200: `resim set-current-epoch 200`
 1. Call the `enter_event` method again
 1. Try to call the same method again, you should see an error because you already used the ticket!
-
-## How to run (Windows)
-1. Reset your environment: `resim reset`
-1. Create a new account: `resim new-account`
-1. Build and deploy the blueprint on the local ledger: `resim publish .`

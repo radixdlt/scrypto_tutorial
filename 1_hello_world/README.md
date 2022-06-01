@@ -9,23 +9,15 @@ Throughout the following steps, addresses will be generated for the account, com
 source var.sh
 ```
 
-### Windows (command prompt)
-```bash
-.\var.bat
+### Windows (PowerShell)
+```powershell
+. .\var.ps1
 ```
 
-## How to run (Linux, Mac)
+## How to run
 1. Reset your environment: `resim reset`
 1. Create a new account: `resim new-account`
 1. Build and deploy the blueprint on the local ledger: `resim publish .`
 1. Call the `instantiate_hello` function to instantiate a component: `resim call-function $package Hello instantiate_hello`
 1. Call the `free_token` method on the component: `resim call-method $component free_token`
 1. Verify that you received a token by running `resim show $account`
-
-## How to run (Windows)
-1. Reset your environment: `resim reset`
-1. Create a new account: `resim new-account`
-1. Build and deploy the blueprint on the local ledger: `resim publish .`
-1. Call the `instantiate_hello` function to instantiate a component: `resim call-function %package% Hello instantiate_hello`
-1. Call the `free_token` method on the component: `resim call-method %component% free_token`
-1. Verify that you received a token by running `resim show %account%`
