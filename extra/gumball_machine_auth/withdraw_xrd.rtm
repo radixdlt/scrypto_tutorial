@@ -1,0 +1,9 @@
+# Create a proof of the admin badge and put in on the auth zone
+CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
+
+# Call the withdraw_xrd method. When calling this, it will verify that the admin badge is
+# present on the auth zone
+CALL_METHOD ComponentAddress("${component}") "withdraw_xrd";
+
+# Put the XRD present on the worktop back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("${account}") "deposit_batch";

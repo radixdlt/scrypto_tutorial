@@ -1,0 +1,7 @@
+# Create a proof of the admin badge
+CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
+
+# Mint three NFTs
+CALL_METHOD ComponentAddress("${component}") "mint_nft" Enum("Blue") Enum("Beanie") Enum("Laser");
+CALL_METHOD ComponentAddress("${component}") "mint_nft" Enum("Yellow") Enum("Cowboy") Enum("Sleepy");
+CALL_METHOD ComponentAddress("${component}") "mint_nft" Enum("Red") Enum("Party") Enum("Eyepatch");
