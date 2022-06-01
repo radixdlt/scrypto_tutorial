@@ -11,7 +11,7 @@ source var.sh
 
 ### Windows (Command Prompt)
 ```bash
-.\var.sh
+.\var.bat
 ```
 
 ## How to run (Linux, Mac)
