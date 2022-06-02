@@ -1,21 +1,23 @@
 $xrd="030000000000000000000000000000000000000000000000000004"
-$account="020d3869346218a5e8deaaf2001216dc00fcacb79fb43e30ded79a"
-$privkey="7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8"
-$gumball_machine_package="01ec9d4708d88ed0995819598e479cd98074e4b9da3a63515c5fd8"
-$gumball="035c4a4745d8221c7dc6a7020357d60c63705bcae54dd2b09200b3"
-$gumball_machine="020de54f99b14e1fd6782365b5dc60e03d9ff7799b8fec9b4bb602"
-$radiswap_package="0157d554360e1d53e6aae97256a205038f73f74f67491bf3ea4715"
-$lp_token="03b6055abc12b91da980d96d53cb9e92dda0d4b0b7b976b5a564fd"
-$radiswap="02f20fc0ccc0cb90ffadd99f32b6a2e42c355c47a49e68c4732bff"
 
 echo "Reseting environment"
 resim reset
-resim new-account
+$NEW_ACCOUNT_RESULT=resim new-account
+$NEW_ACCOUNT_RESULT -join " " -match 'Account component address: (\w+)'
+$account=$matches[1]
 
 echo "Setting up gumball machine"
 cd ../2_gumball_machine
-resim publish .
-resim call-function $gumball_machine_package GumballMachine instantiate_machine 25
+$PUBLISH_GUMBALL=resim publish .
+$PUBLISH_GUMBALL -join " " -match 'Success! New Package: (\w+)'
+$gumball_machine_package=$matches[1]
+
+$INSTANTIATE_RESULT1=resim call-function $gumball_machine_package GumballMachine instantiate_machine 25
+$INSTANTIATE_RESULT1 -join " " -match 'Component: (\w+)'
+$gumball_machine=$matches[1]
+$INSTANTIATE_RESULT1 -join " " -match 'Resource: (\w+)'
+$gumball=$matches[1]
+
 resim call-method $gumball_machine buy_gumball 25,$xrd
 resim call-method $gumball_machine buy_gumball 25,$xrd
 resim call-method $gumball_machine buy_gumball 25,$xrd
@@ -28,7 +30,10 @@ $NEW_TOKEN=resim new-token-fixed --name BitCoin --symbol BTC 21000000
 $NEW_TOKEN -join " " -match 'Resource: (\w+)'
 $btc=$matches[1]
 
-resim publish .
+$PUBLISH_RADISWAP=resim publish .
+$PUBLISH_RADISWAP -join " " -match 'Success! New Package: (\w+)'
+$radiswap_package=$matches[1]
+
 $INSTANTIATE_RESULT=resim call-function $radiswap_package Radiswap instantiate_pool "100,$btc" "3,$gumball" 100 0.01
 
 $INSTANTIATE_RESULT -join " " -match 'Component: (\w+)'
