@@ -21,7 +21,7 @@ echo "Creating BTC token"
 NEW_TOKEN=$(resim new-token-fixed --name BitCoin --symbol BTC 21000000)
 export btc=$(echo "$NEW_TOKEN" | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
 
-resim publish .
+export radiswap_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 PACKAGE_RESULT=$(resim call-function $radiswap_package Radiswap instantiate_pool 100,$btc 3,$gumball 100 0.01)
 export radiswap=$(echo $PACKAGE_RESULT | sed -nr "s/└─ Component: ([[:alnum:]_]+)/\1/p")
 export lp_token=$(echo $PACKAGE_RESULT | sed -nr "s/└─ Resource: ([[:alnum:]_]+)/\1/p")
