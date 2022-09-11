@@ -37,8 +37,8 @@ blueprint! {
                 collected_xrd: Vault::new(RADIX_TOKEN),
                 price: price
             }
-            .instantiate()
-            .add_access_check(access_rules);
+            .instantiate();
+            component.add_access_check(access_rules);
 
             // Return the component and the admin badge
             (component.globalize(), admin_badge)
