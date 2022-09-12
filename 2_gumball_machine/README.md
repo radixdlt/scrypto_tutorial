@@ -5,9 +5,9 @@ This example will show you how to parameterize the instantiated components by ad
 1. save the XRD resource address: 
     ```bash
     // On Linux and Mac
-    export xrd=030000000000000000000000000000000000000000000000000004
+    export xrd=resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag
     // On Windows Powershell
-    $xrd="030000000000000000000000000000000000000000000000000004"
+    $xrd="resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
     ```
 1. Reset your environment: `resim reset`
 1. Create a new account: `resim new-account` -> save into **$account**
