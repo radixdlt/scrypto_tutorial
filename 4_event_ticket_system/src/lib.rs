@@ -88,9 +88,9 @@ blueprint! {
             let validated_ticket: ValidatedProof = ticket.validate_proof(
                 ProofValidationMode::ValidateResourceAddress(self.ticket_nft_address)
             )
-            .expect("Tat's not a ticket NFT!");
+            .expect("That's not a ticket NFT!");
 
-            assert!(Runtime::current_epoch() >= self.event_start, "The event is not started yet");
+            assert!(Runtime::current_epoch() >= self.event_start, "The event has not started yet");
 
             // Get the data associated with the ticket NFT and update the "used" state
             let non_fungible: NonFungible<EventTicket> = validated_ticket.non_fungible();

@@ -1,0 +1,19 @@
+# Instructions for locking fee
+CALL_METHOD ComponentAddress("account_sim1q0v4rmc6zlp6qu5s70v7e7pw7gwgcsw2xw3q07grr3nqa8el4w") "lock_fee" Decimal("10");
+
+#Take 25 XRD from the account
+CALL_METHOD ComponentAddress("account_sim1q0v4rmc6zlp6qu5s70v7e7pw7gwgcsw2xw3q07grr3nqa8el4w") "withdraw_by_amount" Decimal("25") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag");
+
+# Buy a gumball from the GumballMachine component
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("25") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag") Bucket("xrd_payment");
+CALL_METHOD ComponentAddress("component_sim1qgl5qy8jwu3p68vm3kseqr55t6d3m75ep9k4nr7093uq7t9se7") "buy_gumball" Bucket("xrd_payment");
+
+# Swap the gumball to BTC using the RadiSwap component
+TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("1") ResourceAddress("resource_sim1qrf64v4qmdstud9fn380p0zh4923js8ta277tavug7xqzjg9aw") Bucket("gumball");
+CALL_METHOD ComponentAddress("component_sim1qg300295sg2v5hvxdcxzzw63p0je40kuxwups3h4hz3qq0e232") "swap" Bucket("gumball");
+
+# Make sure we get more than 10 BTC
+ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("10") ResourceAddress("resource_sim1qp2asty6kq9c0wuf48zxflnc0vsh7zun3fq0j732j0vs7g9r2p");
+
+# Deposit all resources back into the account
+CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("account_sim1q0v4rmc6zlp6qu5s70v7e7pw7gwgcsw2xw3q07grr3nqa8el4w") "deposit_batch";

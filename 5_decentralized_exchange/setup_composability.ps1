@@ -1,4 +1,4 @@
-$xrd="030000000000000000000000000000000000000000000000000004"
+$xrd="resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
 
 echo "Reseting environment"
 resim reset
@@ -43,6 +43,9 @@ $lp_token=$matches[1]
 
 # Write the transaction manifest
 $tx=@"
+# Instructions for locking fee
+CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
+
 #Take 25 XRD from the account
 CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("25") ResourceAddress("$xrd");
 
@@ -61,4 +64,4 @@ ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("10") ResourceAddress("$btc");
 CALL_METHOD_WITH_ALL_RESOURCES ComponentAddress("$account") "deposit_batch";
 "@
 
-$tx | Out-File -FilePath "composability_example.rtm" -Encoding 'ascii'
+$tx | Out-File -FilePath "composability_example_powershell.rtm" -Encoding 'ascii'

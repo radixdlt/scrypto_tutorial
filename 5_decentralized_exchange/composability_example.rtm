@@ -1,3 +1,6 @@
+# Instructions for locking fee
+CALL_METHOD ComponentAddress("${account}") "lock_fee" Decimal("10");
+
 # Take 25 XRD from the account
 CALL_METHOD ComponentAddress("${account}") "withdraw_by_amount" Decimal("25") ResourceAddress("${xrd}");
 
