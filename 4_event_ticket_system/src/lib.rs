@@ -44,8 +44,15 @@ blueprint! {
                 .restrict_withdraw(rule!(deny_all), MUTABLE(rule!(require(token_admin.resource_address()))))
                 .no_initial_supply();
 
+            // Define the access rules of that component.
+            // People presenting the component_admin badge will be able to
+            // call the allow_resell method
+            let access_rules = AccessRules::new()
+                .method("allow_resell", rule!(require(component_admin.resource_address())))
+                .default(rule!(allow_all));
+                
             // Instantiate the component with a state
-            let component = Self {
+            let mut component = Self {
                 ticket_nft_address: ticket_nft,
                 token_admin: Vault::with_bucket(token_admin),
                 price,
@@ -53,15 +60,9 @@ blueprint! {
                 collected_xrd: Vault::new(RADIX_TOKEN)
             }
             .instantiate();
+            component.add_access_check(access_rules);
 
-            // Define the access rules of that component.
-            // People presenting the component_admin badge will be able to
-            // call the allow_resell method
-            let access_rules = AccessRules::new()
-                .method("allow_resell", rule!(require(component_admin.resource_address())))
-                .default(rule!(allow_all));
-
-            (component.add_access_check(access_rules).globalize(), component_admin)
+            (component.globalize(), component_admin)
         }
 
         // An admin can call this method to allow people to withdraw the
@@ -84,11 +85,15 @@ blueprint! {
         // Allow someone to enter the event. The "used" flag on their ticket NFT will
         // be updated
         pub fn enter_event(&self, ticket: Proof) {
-            assert_eq!(ticket.resource_address(), self.ticket_nft_address, "That's not a ticket NFT!");
+            let validated_ticket: ValidatedProof = ticket.validate_proof(
+                ProofValidationMode::ValidateResourceAddress(self.ticket_nft_address)
+            )
+            .expect("Tat's not a ticket NFT!");
+
             assert!(Runtime::current_epoch() >= self.event_start, "The event is not started yet");
 
             // Get the data associated with the ticket NFT and update the "used" state
-            let non_fungible: NonFungible<EventTicket> = ticket.non_fungible();
+            let non_fungible: NonFungible<EventTicket> = validated_ticket.non_fungible();
             let mut ticket_data = non_fungible.data();
 
             assert!(!ticket_data.used, "You already used this ticket!");
