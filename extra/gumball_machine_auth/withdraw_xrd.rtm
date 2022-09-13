@@ -1,3 +1,6 @@
+# Instruction for locking fee
+CALL_METHOD ComponentAddress("${account}") "lock_fee" Decimal("10");
+
 # Create a proof of the admin badge and put in on the auth zone
 CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
 
