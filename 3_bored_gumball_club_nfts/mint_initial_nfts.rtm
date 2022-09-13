@@ -1,8 +1,5 @@
 #Instruction to lock fee
-CALL_METHOD 
-    ComponentAddress("${account}")
-    "lock_fee"
-    Decimal("10");
+CALL_METHOD ComponentAddress("${account}") "lock_fee" Decimal("10");
 
 # Create a proof of the admin badge
 CALL_METHOD ComponentAddress("${account}") "create_proof" ResourceAddress("${admin_badge}");
