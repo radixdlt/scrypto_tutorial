@@ -1,4 +1,4 @@
-export xrd=030000000000000000000000000000000000000000000000000004
+export xrd=resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag
 
 echo "Reseting environment"
 resim reset

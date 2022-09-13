@@ -3,8 +3,8 @@ In this example, you will learn the very basic of building blueprints (smart con
 
 ## How to run
 1. Reset your environment: `resim reset`
-1. Create a new account: `resim new-account` -> save into **$account**
-1. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
-1. Call the `instantiate_hello` function to instantiate a component: `resim call-function $package Hello instantiate_hello` -> save into **$component**
-1. Call the `free_token` method on the component: `resim call-method $component free_token`
-1. Verify that you received a token by running `resim show $account`
+2. Create a new account: `resim new-account` -> save into **$account**
+3. Build and deploy the blueprint on the local ledger: `resim publish .` -> save into **$package**
+4. Call the `instantiate_hello` function to instantiate a component: `resim call-function $package Hello instantiate_hello` -> save into **$component**
+5. Call the `free_token` method on the component: `resim call-method $component free_token`
+6. Verify that you received a token by running `resim show $account`

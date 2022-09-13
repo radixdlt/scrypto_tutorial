@@ -32,13 +32,13 @@ blueprint! {
                 .default(rule!(allow_all));
 
             // Instantiate the component and attach the access rules we just defined
-            let component = Self {
+            let mut component = Self {
                 gumballs: Vault::with_bucket(gumballs),
                 collected_xrd: Vault::new(RADIX_TOKEN),
                 price: price
             }
-            .instantiate()
-            .add_access_check(access_rules);
+            .instantiate();
+            component.add_access_check(access_rules);
 
             // Return the component and the admin badge
             (component.globalize(), admin_badge)

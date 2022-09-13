@@ -57,8 +57,15 @@ blueprint! {
                 .mintable(rule!(require(minting_authority.resource_address())), LOCKED)
                 .no_initial_supply();
 
+            // Set the access rules for this component.
+            // Only someone presenting the admin_badge will be able to call
+            // the "mint_nft" method.
+            let access_rules = AccessRules::new()
+                .method("mint_nft", rule!(require(admin_badge.resource_address())))
+                .default(rule!(allow_all));
+            
             // Instantiate the component
-            let component = Self {
+            let mut component = Self {
                 gumball_nfts: Vault::new(gumball_address),
                 gumball_nft_def: gumball_address,
                 collected_xrd: Vault::new(RADIX_TOKEN),
@@ -69,15 +76,9 @@ blueprint! {
                 nb_nft_minted: 0
             }
             .instantiate();
+            component.add_access_check(access_rules);
 
-            // Set the access rules for this component.
-            // Only someone presenting the admin_badge will be able to call
-            // the "mint_nft" method.
-            let access_rules = AccessRules::new()
-                .method("mint_nft", rule!(require(admin_badge.resource_address())))
-                .default(rule!(allow_all));
-
-            (component.add_access_check(access_rules).globalize(), admin_badge)
+            (component.globalize(), admin_badge)
         }
 
         // Admins can call this method to mint new gumball

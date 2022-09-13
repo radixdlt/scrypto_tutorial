@@ -15,4 +15,5 @@ source setup_composability.sh
 ```
 
 ## How to run
-1. Run the transaction manifest: `resim run composability_example.rtm`
+If you are using Linux, Mac: run the transaction manifest: `resim run composability_example.rtm`
+If you are using Windows (PowerShell): run the transaction manifest: `resim run composability_example_powershell.rtm`
